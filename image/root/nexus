@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+function shut_down() {
+    echo "Shutting down"
+}
+
+trap "shut_down" SIGKILL SIGTERM SIGHUP SIGINT EXIT
+
+mkdir -p ${NEXUS_DATA}
+
+cd /opt/nexus
+
+# If we were started with NEXUS_UID set to something else than the
+# initial 200, then we have to modify the uid/gid of user nexus and
+# change the ownership of all files
+
+previous_uid=$(stat -c %u /opt/nexus/)
+if [[ $previous_uid != ${NEXUS_UID} ]] ; then
+    sed -i -e "s|^nexus.*|nexus:x:${NEXUS_UID}:${NEXUS_GID}::/opt/nexus:/bin/false|" /etc/passwd
+    sed -i -e "s|^nexus.*|nexus:x:${NEXUS_GID}:|" /etc/group
+    chown -R nexus:nexus /opt/nexus
+    chown -R nexus:nexus ${NEXUS_DATA}
+else
+    chown nexus:nexus ${NEXUS_DATA}
+fi
+
+# without '-b' start-stop-daemon stays in foreground
+start-stop-daemon -c nexus -x /opt/nexus/bin/nexus -S -- run
