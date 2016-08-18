@@ -5,7 +5,7 @@ A Dockerfile for Sonatype Nexus Repository Manager 3, based on mcreations/openwr
 To run, binding the exposed port 8081 to the host.
 
 ```
-$ docker run -d -p 8081:8081 --name nexus mcreations/nexus3
+$ docker run -d -p 8081:8081 --name nexus mcreations/nexus
 ```
 
 To test:
