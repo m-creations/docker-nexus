@@ -80,6 +80,5 @@ for additional information.
 ## Credits
 
 Many thanks to sonatype, as this image (including this README) is
-based on their
-[Nexus3 Docker image](https://github.com/sonatype/docker-nexus3).
+based on their [Nexus3 Docker image](https://github.com/sonatype/docker-nexus3).
 
