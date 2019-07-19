@@ -14,8 +14,14 @@ MAINTAINER Kambiz Darabi <darabi@m-creations.net>
 ENV APP_VERSION 3.17.0-01
 ENV APP_ARCHIVE nexus-${APP_VERSION}-unix.tar.gz
 
-ENV NEXUS_DATA /data/nexus-work
+ENV SONATYPE_WORK=/data/sonatype-work
 VOLUME /data
+
+# configure nexus runtime
+ENV SONATYPE_DIR=/opt/sonatype
+ENV NEXUS_HOME=${SONATYPE_DIR}/nexus \
+    NEXUS_CONTEXT='' \
+    INSTALL4J_ADD_VM_PARAMS="-Xms1200m -Xmx1200m -XX:MaxDirectMemorySize=2g -Djava.util.prefs.userRoot=${SONATYPE_WORK}/javaprefs "
 
 EXPOSE 8081
 
@@ -36,14 +42,11 @@ RUN opkg update && opkg install shadow-useradd shadow-groupadd coreutils-stat &&
     wget --progress dot:giga https://download.sonatype.com/nexus/3/${APP_ARCHIVE} &&\
     tar xzf ${APP_ARCHIVE} &&\
     rm ${APP_ARCHIVE} &&\
-    mv nexus-${APP_VERSION} /opt/nexus &&\
-    sed -e "s|karaf.home=.|karaf.home=/opt/nexus|g" \
-        -e "s|karaf.base=.|karaf.base=/opt/nexus|g" \
-        -e "s|karaf.etc=etc|karaf.etc=/opt/nexus/etc|g" \
-        -e "s|java.util.logging.config.file=etc|java.util.logging.config.file=/opt/nexus/etc|g" \
-        -e "s|karaf.data=data|karaf.data=${NEXUS_DATA}|g" \
-        -e "s|java.io.tmpdir=data/tmp|java.io.tmpdir=${NEXUS_DATA}/tmp|g" \
-        -i /opt/nexus/bin/nexus.vmoptions &&\
-    chown -R nexus:nexus /opt/nexus
+    mkdir -p ${SONATYPE_DIR} &&\
+    mv nexus-${APP_VERSION} ${SONATYPE_DIR}/nexus &&\
+    sed -i -e "s|-XX:LogFile=.*|-XX:LogFile=${SONATYPE_WORK}/nexus3/log/jvm.log|g" \
+        -e "s|karaf.data=.*|karaf.data=${SONATYPE_WORK}/nexus3|g" \
+        -e "s|java.io.tmpdir=.*|java.io.tmpdir=${SONATYPE_WORK}/nexus3/tmp|g" ${NEXUS_HOME}/bin/nexus.vmoptions &&\
+    chown -R nexus:nexus ${SONATYPE_DIR}
 
 CMD /nexus
