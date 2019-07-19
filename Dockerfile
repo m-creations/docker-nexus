@@ -11,7 +11,7 @@
 FROM mcreations/openwrt-java:8
 MAINTAINER Kambiz Darabi <darabi@m-creations.net>
 
-ENV APP_VERSION 3.0.1-01
+ENV APP_VERSION 3.17.0-01
 ENV APP_ARCHIVE nexus-${APP_VERSION}-unix.tar.gz
 
 ENV NEXUS_DATA /data/nexus-work
